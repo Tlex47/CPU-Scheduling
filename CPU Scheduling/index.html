@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CPU Scheduling Simulator</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="app-header">
+        <h1>CPU Scheduling Simulator</h1>
+        <p>จำลองและเปรียบเทียบผลลัพธ์ของ FCFS, SJF และ Round Robin</p>
+      </header>
+
+      <main class="panel">
+        <div class="input-section">
+          <div class="field">
+            <label for="processCount">จำนวนโปรเซส</label>
+            <input id="processCount" type="number" min="1" placeholder="กรอกจำนวนโปรเซส" />
+          </div>
+
+          <div class="field">
+            <label for="timeQuantum">Time Quantum</label>
+            <input id="timeQuantum" type="number" min="1" value="2" placeholder="กรอก Time Quantum" />
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="primary-btn" id="createTableBtn" type="button">สร้างช่องกรอกข้อมูล</button>
+          <button class="secondary-btn" id="randomizeBtn" type="button">สุ่มค่า Burst Time</button>
+          <button class="primary-btn" id="calculateBtn" type="button">คำนวณผลลัพธ์</button>
+        </div>
+
+        <nav id="resultNavigation" class="result-navigation" aria-label="ไปยังผลลัพธ์">
+          <span>ไปยังผลลัพธ์:</span>
+          <button class="secondary-btn" type="button" data-target="result-fcfs" disabled>FCFS</button>
+          <button class="secondary-btn" type="button" data-target="result-sjf" disabled>SJF</button>
+          <button class="secondary-btn" type="button" data-target="result-rr" disabled>RR</button>
+        </nav>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Process</th>
+                <th>Burst Time (BT)</th>
+              </tr>
+            </thead>
+            <tbody id="btTableBody"></tbody>
+          </table>
+        </div>
+
+        <div class="alert-note">หมายเหตุ: Arrival Time (AT) สำหรับทุกโปรเซสถูกกำหนดให้เป็น 0 เสมอ</div>
+      </main>
+
+      <section id="results" class="results-grid" aria-live="polite"></section>
+    </div>
+
+    <button id="backToTopBtn" class="back-to-top" type="button" aria-label="เลื่อนกลับขึ้นไปบนสุด" title="กลับขึ้นไปบนสุด">
+      <span aria-hidden="true">↑</span>
+    </button>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
