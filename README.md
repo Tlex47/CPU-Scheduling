@@ -14,8 +14,8 @@
    - **SJF** (Shortest Job First - แบบ Non-preemptive)
    - **Round Robin** (สามารถกำหนดค่า Time Quantum ได้ ค่าเริ่มต้นคือ 2)
 3. **การแสดงผลลัพธ์:**
-   - แสดงตารางข้อมูล: Process, AT, BT, ST (Start Time), CT (Completion Time), TAT (Turnaround Time) และ WT (Waiting Time)
-   - คำนวณและแสดงค่า **AVG WT** (Average Waiting Time) ของแต่ละอัลกอริทึมเพื่อนำมาเปรียบเทียบกัน
+   - แสดงตารางข้อมูล: Process, AT, BT, ST, CT, TAT และ WT
+   - คำนวณและแสดงค่า **AVG WT** ของแต่ละอัลกอริทึมเพื่อนำมาเปรียบเทียบกัน
 4. **Data Validation:**
    - ระบบตรวจสอบความถูกต้องของข้อมูลพร้อมแจ้งเตือน เมื่อป้อนข้อมูลไม่ครบถ้วน หรือป้อนค่าที่ไม่ถูกต้อง (เช่น ค่าศูนย์ หรือติดลบ)
 
@@ -25,6 +25,7 @@
 
 - **Language & Core:** HTML5, CSS3, JavaScript
 - **Code Editor:** Visual Studio Code
+- **Coding Agent:** Gemini, Copilot
 
 ---
 
