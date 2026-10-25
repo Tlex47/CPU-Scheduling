@@ -21,7 +21,7 @@
 
 ## เครื่องมือและเวอร์ชันที่ใช้ (Tools & Versions)
 
-- **Language & Core:** HTML5, CSS3, JavaScript
+- **Language & Core:** HTML, CSS, JavaScript
 - **Code Editor:** Visual Studio Code
 - **Coding Agent:** Gemini, Copilot
 
