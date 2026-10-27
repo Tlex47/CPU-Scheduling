@@ -19,7 +19,7 @@
 
 ---
 
-## เครื่องมือและเวอร์ชันที่ใช้ (Tools & Versions)
+## เครื่องมือและเวอร์ชันที่ใช้
 
 - **Language & Core:** HTML, CSS, JavaScript
 - **Code Editor:** Visual Studio Code
@@ -37,7 +37,7 @@
 - **ข้อมูลที่ใส่:** จำนวนโปรเซส 3, BT: P1 = 6, P2 = 2, P3 = 4
 - **ผลที่ควรได้:** ลำดับ P2 → P3 → P1, WT: P1 = 6, P2 = 0, P3 = 2, AVG WT = 2.67
 
-### 3. Round Robin (RR)
+### 3. Round Robin
 - **ข้อมูลที่ใส่:** จำนวนโปรเซส 3, BT: P1 = 5, P2 = 3, P3 = 1, Time Quantum = 2
 - **ผลที่ควรได้:** ลำดับที่เสร็จ P3 → P2 → P1, WT: P1 = 4, P2 = 5, P3 = 4, AVG WT = 4.33
 
