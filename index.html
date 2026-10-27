@@ -3,17 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CPU Scheduling Simulator</title>
+    <title>โปรแกรมจำลองการจัดตาราง CPU</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
       <header class="app-header">
-        <h1>CPU Scheduling Simulator</h1>
-        <p>จำลองและเปรียบเทียบผลลัพธ์ของ FCFS, SJF และ Round Robin</p>
+        <h1>โปรแกรมจำลองการจัดตาราง CPU</h1>
+        <p>ใส่ข้อมูล Burst Time แล้วเปรียบเทียบผลของ FCFS, SJF และ Round Robin</p>
       </header>
 
       <main class="panel">
+        <h2>ข้อมูลสำหรับคำนวณ</h2>
         <div class="input-section">
           <div class="field">
             <label for="processCount">จำนวนโปรเซส</label>
@@ -43,7 +44,7 @@
           <table>
             <thead>
               <tr>
-                <th>Process</th>
+                <th>โปรเซส</th>
                 <th>Burst Time (BT)</th>
               </tr>
             </thead>
@@ -51,10 +52,10 @@
           </table>
         </div>
 
-        <div class="alert-note">หมายเหตุ: Arrival Time (AT) สำหรับทุกโปรเซสถูกกำหนดให้เป็น 0 เสมอ</div>
+        <p class="alert-note">หมายเหตุ: Arrival Time (AT) ของทุกโปรเซสกำหนดเป็น 0</p>
       </main>
 
-      <section id="results" class="results-grid" aria-live="polite"></section>
+      <section id="results" class="results-grid" aria-live="polite" aria-label="ผลการคำนวณ"></section>
     </div>
 
     <button id="backToTopBtn" class="back-to-top" type="button" aria-label="เลื่อนกลับขึ้นไปบนสุด" title="กลับขึ้นไปบนสุด">

@@ -8,11 +8,11 @@
 
 1. **การกำหนดโปรเซสและ Burst Time (BT):**
    - รองรับการป้อนจำนวนโปรเซส ($P_1, P_2, \dots, P_n$)
-   - สามารถป้อนค่า Burst Time ด้วยตนเอง หรือใช้ปุ่มสุ่มค่า Burst Time อัตโนมัติ (จำนวนเต็มบวก)
+   - สามารถป้อนค่า Burst Time ด้วยตนเอง หรือใช้ปุ่มสุ่มค่า Burst Time อัตโนมัติ
 2. **อัลกอริทึมที่รองรับ:**
-   - **FCFS** (First-Come, First-Served)
-   - **SJF** (Shortest Job First - แบบ Non-preemptive)
-   - **Round Robin** (สามารถกำหนดค่า Time Quantum ได้ ค่าเริ่มต้นคือ 2)
+   - **FCFS**
+   - **SJF**
+   - **Round Robin**
 3. **การแสดงผลลัพธ์:**
    - แสดงตารางข้อมูล: Process, AT, BT, ST, CT, TAT และ WT
    - คำนวณและแสดงค่า **AVG WT** ของแต่ละอัลกอริทึมเพื่อนำมาเปรียบเทียบกัน
@@ -23,7 +23,7 @@
 
 ## เครื่องมือและเวอร์ชันที่ใช้ (Tools & Versions)
 
-- **Language & Core:** HTML5, CSS3, JavaScript
+- **Language & Core:** HTML, CSS, JavaScript
 - **Code Editor:** Visual Studio Code
 - **Coding Agent:** Gemini, Copilot
 
