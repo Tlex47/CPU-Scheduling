@@ -7,11 +7,11 @@ const resultNavigation = document.getElementById('resultNavigation');
 // เปิดใช้งานค่าเริ่มต้น Time Quantum ตามข้อกำหนด
 timeQuantumInput.value = '2';
 
-function showAlert(message) {
+function alertUser(message) {
   alert(message);
 }
 
-function parsePositiveInteger(value, fieldName) {
+function parsePositiveInt(value, fieldName) {
   const trimmed = String(value).trim();
   if (trimmed === '') {
     throw new Error(`${fieldName} ว่างเปล่า`);
@@ -25,13 +25,13 @@ function parsePositiveInteger(value, fieldName) {
   return num;
 }
 
-function validateProcessCount() {
-  const count = parsePositiveInteger(processCountInput.value, 'จำนวนโปรเซส');
+function getProcessCount() {
+  const count = parsePositiveInt(processCountInput.value, 'จำนวนโปรเซส');
   return count;
 }
 
-function generateBtRows() {
-  const count = validateProcessCount();
+function createBtRows() {
+  const count = getProcessCount();
   btTableBody.innerHTML = '';
 
   for (let i = 1; i <= count; i++) {
@@ -59,17 +59,17 @@ function generateBtRows() {
   }
 }
 
-function randomizeBurstTimes() {
-  const count = validateProcessCount();
+function randomizeBt() {
+  const count = getProcessCount();
   const rows = btTableBody.querySelectorAll('tr');
 
   if (rows.length === 0) {
-    showAlert('กรุณาสร้างช่องกรอกข้อมูลก่อนสุ่มค่า Burst Time');
+    alertUser('กรุณาสร้างช่องกรอกข้อมูลก่อนสุ่มค่า Burst Time');
     return;
   }
 
   if (rows.length !== count) {
-    showAlert('จำนวนช่องกรอกข้อมูลไม่ตรงกับจำนวนโปรเซสที่ระบุ');
+    alertUser('จำนวนช่องกรอกข้อมูลไม่ตรงกับจำนวนโปรเซสที่ระบุ');
     return;
   }
 
@@ -84,8 +84,8 @@ function randomizeBurstTimes() {
   });
 }
 
-function getBurstTimes() {
-  const count = validateProcessCount();
+function readBtValues() {
+  const count = getProcessCount();
   const rows = btTableBody.querySelectorAll('tr');
 
   if (rows.length === 0 || rows.length !== count) {
@@ -101,14 +101,14 @@ function getBurstTimes() {
     }
 
     const value = input.value.trim();
-    const bt = parsePositiveInteger(value, 'Burst Time');
+    const bt = parsePositiveInt(value, 'Burst Time');
     burstTimes.push(bt);
   });
 
   return burstTimes;
 }
 
-function getProcessesFromBurstTimes(burstTimes) {
+function makeProcesses(burstTimes) {
   return burstTimes.map((bt, index) => ({
     name: `P${index + 1}`,
     at: 0,
@@ -117,12 +117,12 @@ function getProcessesFromBurstTimes(burstTimes) {
   }));
 }
 
-function roundToTwo(value) {
+function formatTwoDecimals(value) {
   return Number(value).toFixed(2);
 }
 
 // FCFS: ใช้ลำดับการมาถึงตามลำดับของโปรเซส (AT = 0 เสมอ)
-function calculateFCFS(processes) {
+function runFCFS(processes) {
   let currentTime = 0;
   const results = [];
 
@@ -151,7 +151,7 @@ function calculateFCFS(processes) {
 
 // SJF (Non-preemptive): เรียงตาม Burst Time ที่สั้นที่สุดก่อน
 // หาก BT เท่ากัน ให้ใช้ลำดับเดิมตามชื่อโปรเซสเพื่อให้ผลลัพธ์คงที่
-function calculateSJF(processes) {
+function runSJF(processes) {
   const ordered = [...processes].sort((a, b) => {
     if (a.bt !== b.bt) {
       return a.bt - b.bt;
@@ -186,7 +186,7 @@ function calculateSJF(processes) {
 }
 
 // RR: ใช้ Ready Queue และ Time Quantum เพื่อให้แต่ละโปรเซสได้รับ CPU ตามช่วงเวลา
-function calculateRR(processes, quantum) {
+function runRR(processes, quantum) {
   const queue = processes.map((process) => ({
     ...process,
     remaining: process.bt
@@ -230,7 +230,7 @@ function calculateRR(processes, quantum) {
   return { results, avgWt };
 }
 
-function renderResultsTable(title, resultData, cardId) {
+function createResultTable(title, resultData, cardId) {
   const card = document.createElement('article');
   card.className = 'result-card';
   card.id = cardId;
@@ -240,36 +240,34 @@ function renderResultsTable(title, resultData, cardId) {
   card.appendChild(heading);
 
   const table = document.createElement('table');
-  table.innerHTML = `
-    <thead>
-      <tr>
-        <th>Process</th>
-        <th>AT</th>
-        <th>BT</th>
-        <th>ST</th>
-        <th>CT</th>
-        <th>TAT</th>
-        <th>WT</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  `;
+  const headers = ['Process', 'AT', 'BT', 'ST', 'CT', 'TAT', 'WT'];
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
 
-  const tbody = table.querySelector('tbody');
+  headers.forEach((header) => {
+    const th = document.createElement('th');
+    th.textContent = header;
+    headerRow.appendChild(th);
+  });
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
 
   resultData.results.forEach((row) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${row.process}</td>
-      <td>${row.at}</td>
-      <td>${row.bt}</td>
-      <td>${row.st}</td>
-      <td>${row.ct}</td>
-      <td>${row.tat}</td>
-      <td>${row.wt}</td>
-    `;
+
+    [row.process, row.at, row.bt, row.st, row.ct, row.tat, row.wt].forEach((value) => {
+      const td = document.createElement('td');
+      td.textContent = String(value);
+      tr.appendChild(td);
+    });
+
     tbody.appendChild(tr);
   });
+
+  table.appendChild(tbody);
 
   const tableWrapper = document.createElement('div');
   tableWrapper.className = 'result-table-wrapper';
@@ -280,57 +278,57 @@ function renderResultsTable(title, resultData, cardId) {
   avgLine.className = 'avg-line';
   avgLine.innerHTML = `
     <span>AVG WT</span>
-    <span>${roundToTwo(resultData.avgWt)}</span>
+    <span>${formatTwoDecimals(resultData.avgWt)}</span>
   `;
   card.appendChild(avgLine);
 
   return card;
 }
 
-function calculateAllAlgorithmResults() {
+function calculateAll() {
   try {
-    const count = validateProcessCount();
-    const quantum = parsePositiveInteger(timeQuantumInput.value, 'Time Quantum');
-    const burstTimes = getBurstTimes();
+    const count = getProcessCount();
+    const quantum = parsePositiveInt(timeQuantumInput.value, 'Time Quantum');
+    const burstTimes = readBtValues();
 
     if (burstTimes.length !== count) {
       throw new Error('กรอกข้อมูลไม่ครบ');
     }
 
-    const processes = getProcessesFromBurstTimes(burstTimes);
-    const fcfs = calculateFCFS(processes);
-    const sjf = calculateSJF(processes);
-    const rr = calculateRR(processes, quantum);
+    const processes = makeProcesses(burstTimes);
+    const fcfs = runFCFS(processes);
+    const sjf = runSJF(processes);
+    const rr = runRR(processes, quantum);
 
     resultsContainer.innerHTML = '';
-    resultsContainer.appendChild(renderResultsTable('FCFS', fcfs, 'result-fcfs'));
-    resultsContainer.appendChild(renderResultsTable('SJF (Non-preemptive)', sjf, 'result-sjf'));
-    resultsContainer.appendChild(renderResultsTable('Round Robin (RR)', rr, 'result-rr'));
+    resultsContainer.appendChild(createResultTable('FCFS', fcfs, 'result-fcfs'));
+    resultsContainer.appendChild(createResultTable('SJF (Non-preemptive)', sjf, 'result-sjf'));
+    resultsContainer.appendChild(createResultTable('Round Robin (RR)', rr, 'result-rr'));
     resultNavigation.querySelectorAll('button[data-target]').forEach((button) => {
       button.disabled = false;
     });
   } catch (error) {
-    showAlert(error.message || 'ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง');
+    alertUser(error.message || 'ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง');
   }
 }
 
 document.getElementById('createTableBtn').addEventListener('click', () => {
   try {
-    generateBtRows();
+    createBtRows();
   } catch (error) {
-    showAlert(error.message || 'จำนวนโปรเซสไม่ถูกต้อง');
+    alertUser(error.message || 'จำนวนโปรเซสไม่ถูกต้อง');
   }
 });
 
 document.getElementById('randomizeBtn').addEventListener('click', () => {
   try {
-    randomizeBurstTimes();
+    randomizeBt();
   } catch (error) {
-    showAlert(error.message || 'ไม่สามารถสุ่มค่า Burst Time ได้');
+    alertUser(error.message || 'ไม่สามารถสุ่มค่า Burst Time ได้');
   }
 });
 
-document.getElementById('calculateBtn').addEventListener('click', calculateAllAlgorithmResults);
+document.getElementById('calculateBtn').addEventListener('click', calculateAll);
 
 document.getElementById('backToTopBtn').addEventListener('click', () => {
   window.scrollTo({
