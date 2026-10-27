@@ -4,7 +4,7 @@ const btTableBody = document.getElementById('btTableBody');
 const resultsContainer = document.getElementById('results');
 const resultNavigation = document.getElementById('resultNavigation');
 
-// เปิดใช้งานค่าเริ่มต้น Time Quantum ตามข้อกำหนด
+// ค่าเริ่มต้น Time Quantum
 timeQuantumInput.value = '2';
 
 function alertUser(message) {
@@ -121,7 +121,7 @@ function formatTwoDecimals(value) {
   return Number(value).toFixed(2);
 }
 
-// FCFS: ใช้ลำดับการมาถึงตามลำดับของโปรเซส (AT = 0 เสมอ)
+// FCFS
 function runFCFS(processes) {
   let currentTime = 0;
   const results = [];
@@ -149,8 +149,7 @@ function runFCFS(processes) {
   return { results, avgWt };
 }
 
-// SJF (Non-preemptive): เรียงตาม Burst Time ที่สั้นที่สุดก่อน
-// หาก BT เท่ากัน ให้ใช้ลำดับเดิมตามชื่อโปรเซสเพื่อให้ผลลัพธ์คงที่
+// SJF
 function runSJF(processes) {
   const ordered = [...processes].sort((a, b) => {
     if (a.bt !== b.bt) {
@@ -185,7 +184,7 @@ function runSJF(processes) {
   return { results, avgWt };
 }
 
-// RR: ใช้ Ready Queue และ Time Quantum เพื่อให้แต่ละโปรเซสได้รับ CPU ตามช่วงเวลา
+// RR
 function runRR(processes, quantum) {
   const queue = processes.map((process) => ({
     ...process,
@@ -285,6 +284,16 @@ function createResultTable(title, resultData, cardId) {
   return card;
 }
 
+function showResult(resultId) {
+  resultsContainer.querySelectorAll('.result-card').forEach((card) => {
+    card.hidden = card.id !== resultId;
+  });
+
+  resultNavigation.querySelectorAll('button[data-target]').forEach((button) => {
+    button.setAttribute('aria-pressed', String(button.dataset.target === resultId));
+  });
+}
+
 function calculateAll() {
   try {
     const count = getProcessCount();
@@ -304,6 +313,8 @@ function calculateAll() {
     resultsContainer.appendChild(createResultTable('FCFS', fcfs, 'result-fcfs'));
     resultsContainer.appendChild(createResultTable('SJF (Non-preemptive)', sjf, 'result-sjf'));
     resultsContainer.appendChild(createResultTable('Round Robin (RR)', rr, 'result-rr'));
+    showResult('result-fcfs');
+
     resultNavigation.querySelectorAll('button[data-target]').forEach((button) => {
       button.disabled = false;
     });
@@ -343,8 +354,5 @@ resultNavigation.addEventListener('click', (event) => {
     return;
   }
 
-  document.getElementById(button.dataset.target).scrollIntoView({
-    behavior: 'smooth',
-    block: 'start'
-  });
+  showResult(button.dataset.target);
 });
