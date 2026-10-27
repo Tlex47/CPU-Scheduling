@@ -1,4 +1,4 @@
-# CPU Scheduling Simulator (Term Project)
+# CPU Scheduling
 
 โปรแกรมจำลองและเปรียบเทียบประสิทธิภาพการจัดสรรหน่วยประมวลผล (CPU Scheduling) ในรูปแบบ Web Application
 
