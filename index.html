@@ -1,40 +1,38 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>โปรแกรมจำลองการจัดตาราง CPU</title>
+    <title>CPU Scheduling</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
       <header class="app-header">
-        <h1>โปรแกรมจำลองการจัดตาราง CPU</h1>
-        <p>ใส่ข้อมูล Burst Time แล้วเปรียบเทียบผลของ FCFS, SJF และ Round Robin</p>
+        <h1>CPU Scheduling</h1>
       </header>
 
       <main class="panel">
-        <h2>ข้อมูลสำหรับคำนวณ</h2>
+        <h2>Input Data</h2>
         <div class="input-section">
           <div class="field">
-            <label for="processCount">จำนวนโปรเซส</label>
-            <input id="processCount" type="number" min="1" placeholder="กรอกจำนวนโปรเซส" />
+            <label for="processCount">Processes</label>
+            <input id="processCount" type="number" min="1" placeholder="ระบุจำนวน processes" />
           </div>
 
           <div class="field">
             <label for="timeQuantum">Time Quantum</label>
-            <input id="timeQuantum" type="number" min="1" value="2" placeholder="กรอก Time Quantum" />
+            <input id="timeQuantum" type="number" min="1" value="2" placeholder="ระบุ time quantum" />
           </div>
         </div>
 
         <div class="button-group">
-          <button class="primary-btn" id="createTableBtn" type="button">สร้างช่องกรอกข้อมูล</button>
-          <button class="secondary-btn" id="randomizeBtn" type="button">สุ่มค่า Burst Time</button>
-          <button class="primary-btn" id="calculateBtn" type="button">คำนวณผลลัพธ์</button>
+          <button class="primary-btn" id="createTableBtn" type="button">Create</button>
+          <button class="secondary-btn" id="randomizeBtn" type="button">Random BT</button>
+          <button class="primary-btn" id="calculateBtn" type="button">Calculate</button>
         </div>
 
-        <nav id="resultNavigation" class="result-navigation" aria-label="เลือกอัลกอริทึม">
-          <span>เลือกอัลกอริทึมเพื่อดูผล:</span>
+        <nav id="resultNavigation" class="result-navigation" aria-label="Select an algorithm">
           <button class="secondary-btn" type="button" data-target="result-fcfs" aria-pressed="false" disabled>FCFS</button>
           <button class="secondary-btn" type="button" data-target="result-sjf" aria-pressed="false" disabled>SJF</button>
           <button class="secondary-btn" type="button" data-target="result-rr" aria-pressed="false" disabled>RR</button>
@@ -44,21 +42,45 @@
           <table>
             <thead>
               <tr>
-                <th>โปรเซส</th>
-                <th>Burst Time (BT)</th>
+                <th>Process</th>
+                <th>Burst Time</th>
               </tr>
             </thead>
             <tbody id="btTableBody"></tbody>
           </table>
         </div>
-
-        <p class="alert-note">หมายเหตุ: Arrival Time (AT) ของทุกโปรเซสกำหนดเป็น 0</p>
       </main>
 
-      <section id="results" class="results-grid" aria-live="polite" aria-label="ผลการคำนวณ"></section>
+      <section id="results" class="results-grid" aria-live="polite" aria-label="Calculation results"></section>
+
+      <template id="resultTableTemplate">
+        <article class="result-card">
+          <h3></h3>
+          <div class="result-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Process</th>
+                  <th>AT</th>
+                  <th>BT</th>
+                  <th>ST</th>
+                  <th>CT</th>
+                  <th>TAT</th>
+                  <th>WT</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="avg-line">
+            <span>AVG WT</span>
+            <span class="average-value"></span>
+          </div>
+        </article>
+      </template>
     </div>
 
-    <button id="backToTopBtn" class="back-to-top" type="button" aria-label="เลื่อนกลับขึ้นไปบนสุด" title="กลับขึ้นไปบนสุด">
+    <button id="backToTopBtn" class="back-to-top" type="button" aria-label="Back to top" title="Back to top">
       <span aria-hidden="true">↑</span>
     </button>
 

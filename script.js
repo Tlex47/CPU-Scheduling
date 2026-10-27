@@ -3,8 +3,9 @@ const timeQuantumInput = document.getElementById('timeQuantum');
 const btTableBody = document.getElementById('btTableBody');
 const resultsContainer = document.getElementById('results');
 const resultNavigation = document.getElementById('resultNavigation');
+const resultTableTemplate = document.getElementById('resultTableTemplate');
 
-// ค่าเริ่มต้น Time Quantum
+// Set the default time quantum.
 timeQuantumInput.value = '2';
 
 function alertUser(message) {
@@ -14,7 +15,7 @@ function alertUser(message) {
 function parsePositiveInt(value, fieldName) {
   const trimmed = String(value).trim();
   if (trimmed === '') {
-    throw new Error(`${fieldName} ว่างเปล่า`);
+    throw new Error(`${fieldName} ต้องไม่เว้นว่าง`);
   }
 
   const num = Number(trimmed);
@@ -26,7 +27,7 @@ function parsePositiveInt(value, fieldName) {
 }
 
 function getProcessCount() {
-  const count = parsePositiveInt(processCountInput.value, 'จำนวนโปรเซส');
+  const count = parsePositiveInt(processCountInput.value, 'จำนวน Processes');
   return count;
 }
 
@@ -64,12 +65,12 @@ function randomizeBt() {
   const rows = btTableBody.querySelectorAll('tr');
 
   if (rows.length === 0) {
-    alertUser('กรุณาสร้างช่องกรอกข้อมูลก่อนสุ่มค่า Burst Time');
+    alertUser('กรุณาสร้างช่องกรอกข้อมูลก่อนสุ่มค่า BT');
     return;
   }
 
   if (rows.length !== count) {
-    alertUser('จำนวนช่องกรอกข้อมูลไม่ตรงกับจำนวนโปรเซสที่ระบุ');
+    alertUser('จำนวนช่องกรอกข้อมูลไม่ตรงกับจำนวน Processes ที่ระบุ');
     return;
   }
 
@@ -89,7 +90,7 @@ function readBtValues() {
   const rows = btTableBody.querySelectorAll('tr');
 
   if (rows.length === 0 || rows.length !== count) {
-    throw new Error('กรอกข้อมูลไม่ครบ');
+    throw new Error('กรุณากรอกข้อมูลให้ครบถ้วน');
   }
 
   const burstTimes = [];
@@ -97,7 +98,7 @@ function readBtValues() {
   rows.forEach((row) => {
     const input = row.querySelector('input');
     if (!input) {
-      throw new Error('กรอกข้อมูลไม่ครบ');
+      throw new Error('กรุณากรอกข้อมูลให้ครบถ้วน');
     }
 
     const value = input.value.trim();
@@ -230,56 +231,20 @@ function runRR(processes, quantum) {
 }
 
 function createResultTable(title, resultData, cardId) {
-  const card = document.createElement('article');
-  card.className = 'result-card';
+  const card = resultTableTemplate.content.firstElementChild.cloneNode(true);
   card.id = cardId;
-
-  const heading = document.createElement('h3');
-  heading.textContent = title;
-  card.appendChild(heading);
-
-  const table = document.createElement('table');
-  const headers = ['Process', 'AT', 'BT', 'ST', 'CT', 'TAT', 'WT'];
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-
-  headers.forEach((header) => {
-    const th = document.createElement('th');
-    th.textContent = header;
-    headerRow.appendChild(th);
-  });
-
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-
-  const tbody = document.createElement('tbody');
+  card.querySelector('h3').textContent = title;
+  const tbody = card.querySelector('tbody');
 
   resultData.results.forEach((row) => {
-    const tr = document.createElement('tr');
-
-    [row.process, row.at, row.bt, row.st, row.ct, row.tat, row.wt].forEach((value) => {
-      const td = document.createElement('td');
-      td.textContent = String(value);
-      tr.appendChild(td);
+    const cells = [row.process, row.at, row.bt, row.st, row.ct, row.tat, row.wt];
+    const tableRow = tbody.insertRow();
+    cells.forEach((value) => {
+      tableRow.insertCell().textContent = String(value);
     });
-
-    tbody.appendChild(tr);
   });
 
-  table.appendChild(tbody);
-
-  const tableWrapper = document.createElement('div');
-  tableWrapper.className = 'result-table-wrapper';
-  tableWrapper.appendChild(table);
-  card.appendChild(tableWrapper);
-
-  const avgLine = document.createElement('div');
-  avgLine.className = 'avg-line';
-  avgLine.innerHTML = `
-    <span>AVG WT</span>
-    <span>${formatTwoDecimals(resultData.avgWt)}</span>
-  `;
-  card.appendChild(avgLine);
+  card.querySelector('.average-value').textContent = formatTwoDecimals(resultData.avgWt);
 
   return card;
 }
@@ -301,7 +266,7 @@ function calculateAll() {
     const burstTimes = readBtValues();
 
     if (burstTimes.length !== count) {
-      throw new Error('กรอกข้อมูลไม่ครบ');
+      throw new Error('กรุณากรอกข้อมูลให้ครบทุกช่อง');
     }
 
     const processes = makeProcesses(burstTimes);
@@ -311,8 +276,8 @@ function calculateAll() {
 
     resultsContainer.innerHTML = '';
     resultsContainer.appendChild(createResultTable('FCFS', fcfs, 'result-fcfs'));
-    resultsContainer.appendChild(createResultTable('SJF (Non-preemptive)', sjf, 'result-sjf'));
-    resultsContainer.appendChild(createResultTable('Round Robin (RR)', rr, 'result-rr'));
+    resultsContainer.appendChild(createResultTable('SJF ', sjf, 'result-sjf'));
+    resultsContainer.appendChild(createResultTable('Round Robin ', rr, 'result-rr'));
     showResult('result-fcfs');
 
     resultNavigation.querySelectorAll('button[data-target]').forEach((button) => {
@@ -327,7 +292,7 @@ document.getElementById('createTableBtn').addEventListener('click', () => {
   try {
     createBtRows();
   } catch (error) {
-    alertUser(error.message || 'จำนวนโปรเซสไม่ถูกต้อง');
+    alertUser(error.message || 'จำนวน Processes ไม่ถูกต้อง');
   }
 });
 
