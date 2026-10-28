@@ -21,13 +21,13 @@
 
 ## เครื่องมือและเวอร์ชันที่ใช้
 
-- **Language & Core:** HTML, CSS, JavaScript
+- **Language:** HTML, CSS, JavaScript
 - **Code Editor:** Visual Studio Code
 - **Coding Agent:** Gemini, Copilot
 
 ---
 
-## ชุดทดสอบอัลกอริทึม
+## ชุดทดสอบ
 
 ### 1. FCFS
 - **ข้อมูลที่ใส่:** จำนวนโปรเซส 3, BT: P1 = 5, P2 = 2, P3 = 4
