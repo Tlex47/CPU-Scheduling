@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ผลการจัดตาราง CPU Scheduling</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <header class="app-header">
+        <h1>ผลการจัดตาราง CPU Scheduling</h1>
+      </header>
+
+      <main>
+        <div class="results-actions">
+          <button id="returnToInputBtn" class="secondary-btn" type="button">กลับไปหน้าหลัก</button>
+        </div>
+        <p id="inputSummary" class="input-summary"></p>
+        <section id="results" class="results-grid" aria-live="polite" aria-label="Calculation results"></section>
+      </main>
+
+      <template id="resultTableTemplate">
+        <article class="result-card">
+          <h3></h3>
+          <section class="gantt-section" aria-label="Gantt chart">
+            <h4>Gantt Chart</h4>
+            <div class="gantt-scroll">
+              <div class="gantt-track" role="list"></div>
+              <div class="gantt-timeline" aria-hidden="true"></div>
+            </div>
+          </section>
+          <div class="result-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Process</th>
+                  <th>AT</th>
+                  <th>BT</th>
+                  <th>ST</th>
+                  <th>CT</th>
+                  <th>TAT</th>
+                  <th>WT</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="avg-line">
+            <span>AVG WT</span>
+            <span class="average-value"></span>
+          </div>
+        </article>
+      </template>
+    </div>
+
+    <script src="script.js" defer></script>
+  </body>
+</html>
