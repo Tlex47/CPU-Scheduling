@@ -2,16 +2,19 @@ const processCountInput = document.getElementById('processCount');
 const timeQuantumInput = document.getElementById('timeQuantum');
 const btTableBody = document.getElementById('btTableBody');
 const resultsContainer = document.getElementById('results');
-const resultNavigation = document.getElementById('resultNavigation');
 const resultTableTemplate = document.getElementById('resultTableTemplate');
+const resultsWindowNamePrefix = 'cpu-scheduling-results:';
 
 // Set the default time quantum.
-timeQuantumInput.value = '2';
+if (timeQuantumInput) {
+  timeQuantumInput.value = '2';
+}
 
 function alertUser(message) {
   alert(message);
 }
 
+// ตรวจสอบและแปลงค่าที่รับมาให้เป็นจำนวนเต็มบวก
 function parsePositiveInt(value, fieldName) {
   const trimmed = String(value).trim();
   if (trimmed === '') {
@@ -26,11 +29,13 @@ function parsePositiveInt(value, fieldName) {
   return num;
 }
 
+// อ่านจำนวนโปรเซสจากช่องกรอก
 function getProcessCount() {
   const count = parsePositiveInt(processCountInput.value, 'จำนวน Processes');
   return count;
 }
 
+// สร้างแถวกรอก BT
 function createBtRows() {
   const count = getProcessCount();
   btTableBody.innerHTML = '';
@@ -45,6 +50,7 @@ function createBtRows() {
     const input = document.createElement('input');
     input.type = 'number';
     input.min = '1';
+    input.max = '99';
     input.step = '1';
     input.placeholder = 'BT';
     input.dataset.processIndex = String(i - 1);
@@ -60,6 +66,7 @@ function createBtRows() {
   }
 }
 
+// สุ่มค่า BT
 function randomizeBt() {
   const count = getProcessCount();
   const rows = btTableBody.querySelectorAll('tr');
@@ -85,6 +92,7 @@ function randomizeBt() {
   });
 }
 
+// เช็กค่า BT จากตารางที่กรอก
 function readBtValues() {
   const count = getProcessCount();
   const rows = btTableBody.querySelectorAll('tr');
@@ -103,12 +111,17 @@ function readBtValues() {
 
     const value = input.value.trim();
     const bt = parsePositiveInt(value, 'Burst Time');
+    if (bt > 99) {
+      throw new Error('Burst Time ต้องอยู่ระหว่าง 1 ถึง 99');
+    }
+
     burstTimes.push(bt);
   });
 
   return burstTimes;
 }
 
+// สร้างข้อมูลจาก BT
 function makeProcesses(burstTimes) {
   return burstTimes.map((bt, index) => ({
     name: `P${index + 1}`,
@@ -118,6 +131,7 @@ function makeProcesses(burstTimes) {
   }));
 }
 
+// จัดทศนิยมสองตำแหน่ง
 function formatTwoDecimals(value) {
   return Number(value).toFixed(2);
 }
@@ -126,6 +140,7 @@ function formatTwoDecimals(value) {
 function runFCFS(processes) {
   let currentTime = 0;
   const results = [];
+  const gantt = [];
 
   processes.forEach((process) => {
     const startTime = currentTime;
@@ -143,11 +158,12 @@ function runFCFS(processes) {
       wt
     });
 
+    gantt.push({ process: process.name, start: startTime, end: completionTime });
     currentTime = completionTime;
   });
 
   const avgWt = results.reduce((sum, item) => sum + item.wt, 0) / results.length;
-  return { results, avgWt };
+  return { results, avgWt, gantt };
 }
 
 // SJF
@@ -161,6 +177,7 @@ function runSJF(processes) {
 
   let currentTime = 0;
   const results = [];
+  const gantt = [];
 
   ordered.forEach((process) => {
     const startTime = currentTime;
@@ -178,11 +195,12 @@ function runSJF(processes) {
       wt
     });
 
+    gantt.push({ process: process.name, start: startTime, end: completionTime });
     currentTime = completionTime;
   });
 
   const avgWt = results.reduce((sum, item) => sum + item.wt, 0) / results.length;
-  return { results, avgWt };
+  return { results, avgWt, gantt };
 }
 
 // RR
@@ -195,6 +213,7 @@ function runRR(processes, quantum) {
   let currentTime = 0;
   const firstStart = new Map();
   const results = [];
+  const gantt = [];
 
   while (queue.length > 0) {
     const current = queue.shift();
@@ -205,6 +224,11 @@ function runRR(processes, quantum) {
 
     const runTime = Math.min(current.remaining, quantum);
     current.remaining -= runTime;
+    gantt.push({
+      process: current.name,
+      start: currentTime,
+      end: currentTime + runTime
+    });
     currentTime += runTime;
 
     if (current.remaining === 0) {
@@ -226,14 +250,55 @@ function runRR(processes, quantum) {
     }
   }
 
+  results.sort((a, b) => Number(a.process.slice(1)) - Number(b.process.slice(1)));
   const avgWt = results.reduce((sum, item) => sum + item.wt, 0) / results.length;
-  return { results, avgWt };
+  return { results, avgWt, gantt };
 }
 
+function createGanttChart(gantt, container) {
+  const track = container.querySelector('.gantt-track');
+  const timeline = container.querySelector('.gantt-timeline');
+  const totalTime = gantt.length > 0 ? gantt[gantt.length - 1].end : 0;
+
+  track.style.width = '100%';
+  timeline.style.width = '100%';
+
+  gantt.forEach((entry, index) => {
+    const duration = entry.end - entry.start;
+    const processIndex = Number(entry.process.slice(1)) - 1;
+    const segment = document.createElement('div');
+    segment.className = 'gantt-segment';
+    segment.setAttribute('role', 'listitem');
+    segment.style.flex = `${duration} 1 0px`;
+    segment.style.setProperty('--process-index', String(processIndex));
+    segment.textContent = entry.process;
+    segment.setAttribute('aria-label', `${entry.process}: ${entry.start} to ${entry.end}`);
+    track.appendChild(segment);
+
+    const timeLabel = document.createElement('span');
+    timeLabel.className = 'gantt-time';
+    timeLabel.textContent = String(entry.start);
+    timeLabel.style.left = `${(entry.start / totalTime) * 100}%`;
+    if (index === 0) {
+      timeLabel.classList.add('gantt-time-start');
+    }
+    timeline.appendChild(timeLabel);
+  });
+
+  if (totalTime > 0) {
+    const endLabel = document.createElement('span');
+    endLabel.className = 'gantt-time gantt-time-end';
+    endLabel.textContent = String(totalTime);
+    timeline.appendChild(endLabel);
+  }
+}
+
+// สร้างตารางผลลัพธ์ของอัลกอริทึม
 function createResultTable(title, resultData, cardId) {
   const card = resultTableTemplate.content.firstElementChild.cloneNode(true);
   card.id = cardId;
   card.querySelector('h3').textContent = title;
+  createGanttChart(resultData.gantt, card.querySelector('.gantt-scroll'));
   const tbody = card.querySelector('tbody');
 
   resultData.results.forEach((row) => {
@@ -249,17 +314,30 @@ function createResultTable(title, resultData, cardId) {
   return card;
 }
 
-function showResult(resultId) {
-  resultsContainer.querySelectorAll('.result-card').forEach((card) => {
-    card.hidden = card.id !== resultId;
-  });
+function createComparisonSummary(algorithmResults) {
+  const lowestAvgWt = Math.min(...algorithmResults.map(({ result }) => result.avgWt));
+  const bestAlgorithms = algorithmResults
+    .filter(({ result }) => Math.abs(result.avgWt - lowestAvgWt) < 1e-9)
+    .map(({ name }) => name);
+  const summary = document.createElement('section');
+  summary.className = 'comparison-summary';
+  summary.setAttribute('aria-label', 'Algorithm comparison');
 
-  resultNavigation.querySelectorAll('button[data-target]').forEach((button) => {
-    button.setAttribute('aria-pressed', String(button.dataset.target === resultId));
-  });
+  const heading = document.createElement('h3');
+  heading.textContent = 'เปรียบเทียบผลลัพธ์';
+
+  const description = document.createElement('p');
+  description.textContent =
+    `AVG WT ต่ำที่สุด: ${bestAlgorithms.join(', ')} (${formatTwoDecimals(lowestAvgWt)})`;
+
+  summary.append(heading, description);
+  return summary;
 }
 
-function calculateAll() {
+// ตรวจสอบข้อมูลและส่งไปหน้าผลลัพธ์ในแท็บใหม่
+function calculateAll(event) {
+  event.preventDefault();
+
   try {
     const count = getProcessCount();
     const quantum = parsePositiveInt(timeQuantumInput.value, 'Time Quantum');
@@ -269,55 +347,119 @@ function calculateAll() {
       throw new Error('กรุณากรอกข้อมูลให้ครบทุกช่อง');
     }
 
-    const processes = makeProcesses(burstTimes);
-    const fcfs = runFCFS(processes);
-    const sjf = runSJF(processes);
-    const rr = runRR(processes, quantum);
-
-    resultsContainer.innerHTML = '';
-    resultsContainer.appendChild(createResultTable('FCFS', fcfs, 'result-fcfs'));
-    resultsContainer.appendChild(createResultTable('SJF ', sjf, 'result-sjf'));
-    resultsContainer.appendChild(createResultTable('Round Robin ', rr, 'result-rr'));
-    showResult('result-fcfs');
-
-    resultNavigation.querySelectorAll('button[data-target]').forEach((button) => {
-      button.disabled = false;
+    const resultData = JSON.stringify({
+      count,
+      quantum,
+      burstTimes
     });
+    const resultsWindow = window.open('about:blank', '_blank');
+    if (!resultsWindow) {
+      throw new Error('เบราว์เซอร์บล็อกการเปิดแท็บใหม่ กรุณาอนุญาต Pop-up แล้วลองอีกครั้ง');
+    }
+
+    resultsWindow.name = `${resultsWindowNamePrefix}${resultData}`;
+    resultsWindow.location.replace(new URL('results.html', window.location.href).href);
   } catch (error) {
     alertUser(error.message || 'ข้อมูลไม่ถูกต้อง กรุณาตรวจสอบอีกครั้ง');
   }
 }
 
-document.getElementById('createTableBtn').addEventListener('click', () => {
+function renderResultsPage() {
   try {
-    createBtRows();
+    const windowName = window.name;
+    window.name = '';
+    if (!windowName.startsWith(resultsWindowNamePrefix)) {
+      throw new Error('ไม่พบข้อมูลที่ส่งมา กรุณากลับไปกรอกข้อมูลและกด Calculate อีกครั้ง');
+    }
+
+    const data = JSON.parse(windowName.slice(resultsWindowNamePrefix.length));
+    if (!data || typeof data !== 'object') {
+      throw new Error('ข้อมูลผลลัพธ์ไม่ถูกต้อง');
+    }
+
+    const count = parsePositiveInt(data.count, 'จำนวน Processes');
+    const quantum = parsePositiveInt(data.quantum, 'Time Quantum');
+    if (!Array.isArray(data.burstTimes)) {
+      throw new Error('ข้อมูล Burst Time ไม่ถูกต้อง');
+    }
+
+    const burstTimes = data.burstTimes.map((value) => {
+      const bt = parsePositiveInt(value, 'Burst Time');
+      if (bt > 99) {
+        throw new Error('Burst Time ต้องอยู่ระหว่าง 1 ถึง 99');
+      }
+      return bt;
+    });
+
+    if (burstTimes.length !== count) {
+      throw new Error('จำนวน Burst Time ไม่ตรงกับจำนวน Processes');
+    }
+
+    const processes = makeProcesses(burstTimes);
+    const fcfs = runFCFS(processes);
+    const sjf = runSJF(processes);
+    const rr = runRR(processes, quantum);
+    const algorithmResults = [
+      { name: 'FCFS', result: fcfs },
+      { name: 'SJF', result: sjf },
+      { name: 'RR', result: rr }
+    ];
+
+    const inputSummary = document.getElementById('inputSummary');
+    inputSummary.textContent =
+      `จำนวน Processes: ${count} | Time Quantum: ${quantum} | Burst Time: ${burstTimes.join(', ')}`;
+    resultsContainer.appendChild(createComparisonSummary(algorithmResults));
+    resultsContainer.appendChild(createResultTable('FCFS', fcfs, 'result-fcfs'));
+    resultsContainer.appendChild(createResultTable('SJF ', sjf, 'result-sjf'));
+    resultsContainer.appendChild(createResultTable('Round Robin ', rr, 'result-rr'));
   } catch (error) {
-    alertUser(error.message || 'จำนวน Processes ไม่ถูกต้อง');
+    resultsContainer.textContent = error.message || 'ไม่สามารถแสดงผลลัพธ์ได้';
   }
-});
+}
 
-document.getElementById('randomizeBtn').addEventListener('click', () => {
-  try {
-    randomizeBt();
-  } catch (error) {
-    alertUser(error.message || 'ไม่สามารถสุ่มค่า Burst Time ได้');
-  }
-});
-
-document.getElementById('calculateBtn').addEventListener('click', calculateAll);
-
-document.getElementById('backToTopBtn').addEventListener('click', () => {
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth'
+// เช็กการกดปุ่มสร้างตารางกรอก BT
+const createTableButton = document.getElementById('createTableBtn');
+if (createTableButton) {
+  createTableButton.addEventListener('click', () => {
+    try {
+      createBtRows();
+    } catch (error) {
+      alertUser(error.message || 'จำนวน Processes ไม่ถูกต้อง');
+    }
   });
-});
+}
 
-resultNavigation.addEventListener('click', (event) => {
-  const button = event.target.closest('button[data-target]');
-  if (!button) {
-    return;
-  }
+// จัดการการคลิกปุ่มสุ่มค่า BT
+const randomizeButton = document.getElementById('randomizeBtn');
+if (randomizeButton) {
+  randomizeButton.addEventListener('click', () => {
+    try {
+      randomizeBt();
+    } catch (error) {
+      alertUser(error.message || 'ไม่สามารถสุ่มค่า Burst Time ได้');
+    }
+  });
+}
 
-  showResult(button.dataset.target);
-});
+// ตรวจสอบข้อมูลก่อนส่งฟอร์มผลลัพธ์ไปยังแท็บใหม่
+const inputForm = document.getElementById('inputForm');
+if (inputForm) {
+  inputForm.addEventListener('submit', calculateAll);
+}
+
+if (resultsContainer) {
+  renderResultsPage();
+
+  document.getElementById('returnToInputBtn').addEventListener('click', () => {
+    if (window.opener && !window.opener.closed) {
+      window.opener.focus();
+    }
+
+    window.close();
+    window.setTimeout(() => {
+      if (!window.closed) {
+        window.location.replace('index.html');
+      }
+    }, 100);
+  });
+}
