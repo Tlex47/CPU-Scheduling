@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,75 +14,39 @@
 
       <main class="panel">
         <h2>Input Data</h2>
-        <div class="input-section">
-          <div class="field">
-            <label for="processCount">Processes</label>
-            <input id="processCount" type="number" min="1" placeholder="ระบุจำนวน processes" />
+        <form id="inputForm">
+          <div class="input-section">
+            <div class="field">
+              <label for="processCount">Processes</label>
+              <input id="processCount" type="number" min="1" placeholder="ระบุจำนวน processes" />
+            </div>
+
+            <div class="field">
+              <label for="timeQuantum">Time Quantum</label>
+              <input id="timeQuantum" type="number" min="1" value="2" placeholder="ระบุ time quantum" />
+            </div>
           </div>
 
-          <div class="field">
-            <label for="timeQuantum">Time Quantum</label>
-            <input id="timeQuantum" type="number" min="1" value="2" placeholder="ระบุ time quantum" />
+          <div class="button-group">
+            <button class="primary-btn" id="createTableBtn" type="button">Create</button>
+            <button class="secondary-btn" id="randomizeBtn" type="button">Random BT</button>
+            <button class="primary-btn" id="calculateBtn" type="submit">Calculate</button>
           </div>
-        </div>
 
-        <div class="button-group">
-          <button class="primary-btn" id="createTableBtn" type="button">Create</button>
-          <button class="secondary-btn" id="randomizeBtn" type="button">Random BT</button>
-          <button class="primary-btn" id="calculateBtn" type="button">Calculate</button>
-        </div>
-
-        <nav id="resultNavigation" class="result-navigation" aria-label="Select an algorithm">
-          <button class="secondary-btn" type="button" data-target="result-fcfs" aria-pressed="false" disabled>FCFS</button>
-          <button class="secondary-btn" type="button" data-target="result-sjf" aria-pressed="false" disabled>SJF</button>
-          <button class="secondary-btn" type="button" data-target="result-rr" aria-pressed="false" disabled>RR</button>
-        </nav>
-
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>Process</th>
-                <th>Burst Time</th>
-              </tr>
-            </thead>
-            <tbody id="btTableBody"></tbody>
-          </table>
-        </div>
-      </main>
-
-      <section id="results" class="results-grid" aria-live="polite" aria-label="Calculation results"></section>
-
-      <template id="resultTableTemplate">
-        <article class="result-card">
-          <h3></h3>
-          <div class="result-table-wrapper">
+          <div class="table-wrapper">
             <table>
               <thead>
                 <tr>
                   <th>Process</th>
-                  <th>AT</th>
-                  <th>BT</th>
-                  <th>ST</th>
-                  <th>CT</th>
-                  <th>TAT</th>
-                  <th>WT</th>
+                  <th>Burst Time</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody id="btTableBody"></tbody>
             </table>
           </div>
-          <div class="avg-line">
-            <span>AVG WT</span>
-            <span class="average-value"></span>
-          </div>
-        </article>
-      </template>
+        </form>
+      </main>
     </div>
-
-    <button id="backToTopBtn" class="back-to-top" type="button" aria-label="Back to top" title="Back to top">
-      <span aria-hidden="true">↑</span>
-    </button>
 
     <script src="script.js" defer></script>
   </body>
